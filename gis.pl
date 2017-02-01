@@ -20,7 +20,7 @@ use Encode qw(decode encode);
 use Devel::Size qw(size total_size);
 
 =begin comment
-1) Чтобы начать использовать: ./parse_gis.pl --k your_key
+1) Чтобы начать использовать: ./gis.pl --k your_key
 2) Заполнение тестовыми данными нужно чтобы понять какое количество данных упрется в предел CPU и RAM
 3) 1 компания = 1 items в JSON
 =cut
@@ -107,22 +107,27 @@ my $COUNT_COLS;
 ###############################################################################
 #									START
 ###############################################################################
-&main();
+main();
 
+###############################################################################
 sub parse_argv
 {
     GetOptions ('k=s' => \$KEY);
 }
 
+###############################################################################
 sub do_debug
 {
 
 }
 
+###############################################################################
 sub get_date
 {
    return strftime '%Y%m%d', localtime;
 }
+
+###############################################################################
 sub get_name
 {	
 	#my $date = strftime '%Y%m%d', localtime;
@@ -135,13 +140,14 @@ sub get_name
 	}
 }
 
+###############################################################################
 sub do_test
 {
     fill_hash_test(COUNT_TEST);
 
-	my $file_json = get_name('2gis_TEST', 'json');
-	my $file_xlsx = get_name('2gis_TEST', 'xlsx');
-	
+    my $file_json = get_name('2gis_TEST', 'json');
+    my $file_xlsx = get_name('2gis_TEST', 'xlsx');
+
     save_json_to_file($file_json) if SAVE_JSON_TO_FILE;
 
     save_to_excel($file_xlsx) if SAVE_TO_EXCEL;
@@ -149,6 +155,7 @@ sub do_test
     exit;
 }
 
+###############################################################################
 sub get_data
 {
     my $url = $GENERAL_URL . "rubric/list?region_id=$REGION_ID&fields=items.rubrics&key=$KEY";
@@ -221,7 +228,7 @@ sub get_data
 		{
 			#т.к символ '/' в названии файла недопустим то меняем его на '.'
 			$item_name =~ tr/\//./;
-            
+
 			save_to_excel("$item_count) $item_name _" . get_date() . ".xlsx") if SAVE_TO_EXCEL;
 			
 			$COUNT_COMPANY = 0;
@@ -249,11 +256,13 @@ sub get_data
 	undef %MAIN_DATA;
 }
 
+###############################################################################
 sub get_city_by_id
 {
-my $id = shift;
+    my $id = shift;
 }
 
+###############################################################################
 sub get_id_of_city
 {
     my $city = shift;
@@ -280,7 +289,7 @@ sub get_id_of_city
     return $id_city;
 }
 
-
+###############################################################################
 sub get_data_about_compamy
 {
     my $rubric_id = $_[0];
@@ -288,8 +297,8 @@ sub get_data_about_compamy
     my $sub_rubric = $_[2];
 
     my $page = 1;
-	
-	#Количество выводимых компании на странице
+
+    #Количество выводимых компании на странице
     my $page_size = '12';
 
     my $item_count = 1;
@@ -379,6 +388,7 @@ sub get_data_about_compamy
     }#end while
 }
 
+###############################################################################
 sub get_phone
 {
     my @json_contacts = shift;
@@ -410,6 +420,7 @@ sub get_phone
     return $phone;
 }
 
+###############################################################################
 sub get_website
 {
     my @json_contacts = shift;
@@ -435,6 +446,7 @@ sub get_website
     return $website;
 }
 
+###############################################################################
 sub get_email
 {
     my @json_contacts = shift;
@@ -460,17 +472,18 @@ sub get_email
     return $email;
 }
 
+###############################################################################
 sub send_report_about_parsing
 {
 
-my $msg = MIME::Lite->new(
-	From     => FROM,
-	To       => RECIPIENT,
-	Subject  => SUBJECT,
-	Type     => 'multipart/related'
-);
+    my $msg = MIME::Lite->new(
+		From     => FROM,
+		To       => RECIPIENT,
+		Subject  => SUBJECT,
+		Type     => 'multipart/related'
+    );
 
-my $body = qq{ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    my $body = qq{ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 					<html xmlns="http://www.w3.org/1999/xhtml">
 					<head>
 					<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -485,14 +498,15 @@ my $body = qq{ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "h
 					    </html>
 					};
 
-$msg->attach(
-	Type => 'text/html',
-	Data => $body
-);
+    $msg->attach(
+	    Type => 'text/html',
+	    Data => $body
+    );
 
-$msg->send('smtp', SMTP_SERVER, Debug => EMAIL_DEBUG);
+    $msg->send('smtp', SMTP_SERVER, Debug => EMAIL_DEBUG);
 }
 
+###############################################################################
 sub println
 {
     my ($text, $color) = @_;
@@ -510,6 +524,7 @@ sub println
     print color('reset');
 }
 
+###############################################################################
 sub printlnEx
 {
     my ($text, $color) = @_;
@@ -517,6 +532,7 @@ sub printlnEx
     print colored($text, $color), "\n";
 }
 
+###############################################################################
 sub delete_tags
 {
     my $text = shift;
@@ -536,6 +552,7 @@ sub delete_tags
     return '';
 }
 
+###############################################################################
 sub fill_hash
 {
     my ($count,
@@ -573,6 +590,7 @@ sub fill_hash
 
 }
 
+###############################################################################
 sub generate_string
 {
     my $length_of_randomstring = $_[0];
@@ -589,6 +607,7 @@ sub generate_string
     return $random_string;
 }
 
+###############################################################################
 sub fill_hash_test
 {
     my $count = shift;
@@ -624,6 +643,7 @@ sub fill_hash_test
     print 'Total size hash (after): ' . convert_to_mb(total_size($encoded)). " MB\n";
 }
 
+###############################################################################
 sub save_json_to_file
 {
     my $file = shift;
@@ -639,6 +659,7 @@ sub save_json_to_file
     archive_file($file) if ARCHIVE_JSON;
 }
 
+###############################################################################
 sub save_to_excel
 {
     my $file = shift;
@@ -779,6 +800,7 @@ sub save_to_excel
     archive_file($file) if ARCHIVE_EXCEL;
 }
 
+###############################################################################
 sub convert_to_mb
 {
     my $size = shift;
@@ -786,6 +808,7 @@ sub convert_to_mb
     return ceil($size / (1024 * 1024));
 }
 
+###############################################################################
 sub archive_file
 {
     my $file = shift;
@@ -807,6 +830,7 @@ sub archive_file
     print "Архивация \'$archive_name\': УСПЕШНО\n";
 }
 
+###############################################################################
 sub delete_extension
 {
     my $name = shift;
@@ -816,6 +840,7 @@ sub delete_extension
     return $name;
 }
 
+###############################################################################
 sub delete_file
 {
     my $file = shift;
@@ -825,6 +850,7 @@ sub delete_file
     print "Удаление файла \'$file\': УСПЕШНО\n";
 }
 
+###############################################################################
 sub print_summary_info
 {
     printlnEx('******************SUMMARY INFORMATION**********************', 'red on_bright_yellow');
@@ -840,6 +866,7 @@ sub print_summary_info
     println("Company with website: $COUNT_COMPANY_WEBSITE, ($percent_company_website%)");
 }
 
+###############################################################################
 sub main
 {
 	system('clear');
