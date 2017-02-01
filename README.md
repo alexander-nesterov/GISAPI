@@ -1,6 +1,6 @@
 # GISAPI
 - for using: 
 ```` shell
-#gis.pl --k your_key
+#perl gis.pl --k your_key
 ````
 
